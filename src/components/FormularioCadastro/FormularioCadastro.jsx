@@ -1,52 +1,78 @@
-import React, { useState, useEffect } from "react";
-import DadosPessoais from "./DadosPessoais";
-import DadosUsuario from "./DadosUsuario";
-import DadosEntrega from "./DadosEntrega";
-import { Typography, Stepper, Step, StepLabel } from "@material-ui/core";
+import React, { Component } from "react";
+import "./estilo.css";
+class FormularioCadastro extends Component {
+  constructor(props) {
+    super(props);
+    this.titulo = "";
+    this.texto = "";
+    this.categoria = "Sem Categoria";
+    this.state = {categorias:[]}
 
-function FormularioCadastro({ aoEnviar }) {
-  const [etapaAtual, setEtapaAtual] = useState(0);
-  const [dadosColetados, setDados] = useState({});
-
-  useEffect(() => {
-    if (etapaAtual === formularios.length - 1) {
-      aoEnviar(dadosColetados);
-    }
-  });
-
-  const formularios = [
-    <DadosUsuario aoEnviar={coletarDados} />,
-    <DadosPessoais aoEnviar={coletarDados} />,
-    <DadosEntrega aoEnviar={coletarDados} />,
-    <Typography variant="h5">Obrigado pelo Cadastro!</Typography>,
-  ];
-
-  function coletarDados(dados) {
-    setDados({ ...dadosColetados, ...dados });
-    proximo();
+    this._novasCategorias = this._novasCategorias.bind(this);
   }
-  function proximo() {
-    setEtapaAtual(etapaAtual + 1);
+
+  componentDidMount(){
+    this.props.categorias.inscrever( this._novasCategorias);
+    
   }
-  return (
-    <>
-      <Stepper activeStep={etapaAtual}>
-        <Step>
-          <StepLabel>Login</StepLabel>
-        </Step>
-        <Step>
-          <StepLabel>Pessoal</StepLabel>
-        </Step>
-        <Step>
-          <StepLabel>Entrega</StepLabel>
-        </Step>
-        <Step>
-          <StepLabel>Finalização</StepLabel>
-        </Step>
-      </Stepper>
-      {formularios[etapaAtual]}
-    </>
-  );
+
+  componentWillUnmount(){
+    this.props.categorias.desinscrever( this._novasCategorias);
+  }
+  _novasCategorias(categorias){
+    this.setState({...this.state, categorias})
+  }
+  _handleMudancaCategoria(evento){
+    evento.stopPropagation();
+    this.categoria = evento.target.value;
+  }
+  _handleMudancaTitulo(evento) {
+    evento.stopPropagation();
+    this.titulo = evento.target.value;
+  }
+
+  _handleMudancaTexto(evento) {
+    evento.stopPropagation();
+    this.texto = evento.target.value;
+  }
+
+  _criarNota(evento) {
+    evento.preventDefault();
+    evento.stopPropagation();
+    this.props.criarNota(this.titulo, this.texto, this.categoria);
+  }
+
+  render() {
+    return (
+      <form className="form-cadastro" onSubmit={this._criarNota.bind(this)}>
+        <select
+          onChange={this._handleMudancaCategoria.bind(this)}
+          className="form-cadastro_input"
+        >
+          <option>Sem Categoria</option>
+
+          {this.state.categorias.map((categoria, index) => {
+            return <option key={index} >{categoria}</option>;
+          })}
+        </select>
+        <input
+          type="text"
+          placeholder="Título"
+          className="form-cadastro_input"
+          onChange={this._handleMudancaTitulo.bind(this)}
+        />
+        <textarea
+          rows={15}
+          placeholder="Escreva sua nota..."
+          className="form-cadastro_input"
+          onChange={this._handleMudancaTexto.bind(this)}
+        />
+        <button className="form-cadastro_input form-cadastro_submit">
+          Criar Nota
+        </button>
+      </form>
+    );
+  }
 }
 
 export default FormularioCadastro;

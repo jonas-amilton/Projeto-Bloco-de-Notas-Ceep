@@ -1,31 +1,40 @@
 import React, { Component } from "react";
-import "./App.css";
-import FormularioCadastro from "./components/FormularioCadastro/FormularioCadastro";
-import "fontsource-roboto";
-import { Container, Typography } from "@material-ui/core";
-
-import ValidacoesCadastro from "./contexts/ValidacoesCadastro";
-
-import { validarCPF, validarSenha } from "./models/cadastro";
+import ListaDeNotas from "./components/ListaDeNotas";
+import FormularioCadastro from "./components/FormularioCadastro";
+import ListaDeCategorias from "./components/ListaDeCategorias";
+import "./assets/App.css";
+import "./assets/index.css";
+import Categorias from "./dados/Categorias";
+import ArrayDeNotas from "./dados/Notas";
 class App extends Component {
+  constructor() {
+    super();
+    this.categorias = new Categorias();
+    this.notas = new ArrayDeNotas();
+    
+  }
+
   render() {
     return (
-      <Container component="article" maxWidth="sm">
-        <Typography variant="h3" component="h1" align="center">
-          Formulário de cadastro
-        </Typography>
-        <ValidacoesCadastro.Provider
-          value={{ cpf: validarCPF, senha: validarSenha, nome: validarSenha }}
-        >
-          <FormularioCadastro aoEnviar={aoEnviarForm} />
-        </ValidacoesCadastro.Provider>
-      </Container>
+      <section className="conteudo">
+        <FormularioCadastro
+          categorias={this.categorias}
+          criarNota={this.notas.adicionarNota.bind(this.notas)}
+        />
+        <main className="conteudo-principal">
+          <ListaDeCategorias
+            adicionarCategoria={this.categorias.adicionarCategoria.bind(this.categorias)}
+            categorias={this.categorias}
+          />
+          <ListaDeNotas
+            apagarNota={this.notas.apagarNota.bind(this.notas)}
+            notas={this.notas}
+          />
+        </main>
+      </section>
     );
   }
 }
 
-function aoEnviarForm(dados) {
-  console.log(dados);
-}
-
+//new ListaDeNotas({notas:this.notas})
 export default App;
